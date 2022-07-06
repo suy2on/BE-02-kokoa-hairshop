@@ -49,4 +49,11 @@ public class ReservationControllerAdvice {
         return ResponseEntity.badRequest()
             .body(e.getMessage());
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    ResponseEntity<String> handleIllegalArgumentException(
+        IllegalArgumentException e) {
+        return ResponseEntity.badRequest()
+            .body(e.getMessage());
+    }
 }

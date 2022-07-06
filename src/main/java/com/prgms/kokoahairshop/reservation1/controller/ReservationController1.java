@@ -13,6 +13,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReservationController1 {
 
     private final ReservationService1 reservationService1;
-    private final UserDetailService userDetailService;
+
 
     @PostMapping("/reservations/v1")
     public ResponseEntity<ReservationSuccessResponseDto> reserve(@Validated @RequestBody CreateReservationRequestDto createReservationRequestDto) {
@@ -42,8 +43,7 @@ public class ReservationController1 {
     }
 
     @GetMapping("/reservations/v1/user")
-    public ResponseEntity<List<ReservationResponseDto>> reservationListByUser() {
-        User user = userDetailService.getUserFromSecurityContextHolder();
+    public ResponseEntity<List<ReservationResponseDto>> reservationListByUser(@AuthenticationPrincipal User user) {
         List<ReservationResponseDto> reservations = reservationService1.getReservationListByUser(user.getId());
         return ResponseEntity.ok(reservations);
     }

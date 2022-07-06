@@ -43,6 +43,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
@@ -178,7 +179,7 @@ class ReservationsController1Test {
 
     @Test
     @Order(1)
-    @WithMockUser(username = "example@gmail.com", roles = "USER")
+    @WithUserDetails(value = "example2@naver.com")
     void 예약을_생성할_수_있다() throws Exception {
         ReservationRequestDto requestDto = ReservationRequestDto.builder()
             .name("예약자")
@@ -223,7 +224,30 @@ class ReservationsController1Test {
 
     @Test
     @Order(2)
-    @WithMockUser(username = "example@gmail.com", roles = "USER")
+    @WithUserDetails(value = "example2@naver.com")
+    void 본인이_아니면_예약을_생성할_수_없다() throws Exception {
+        ReservationRequestDto requestDto = ReservationRequestDto.builder()
+            .name("예약자")
+            .phoneNumber("010-1234-5678")
+            .date(LocalDate.now())
+            .time("11:00") // 11시에는 예약 없어서 생성 성공
+            .request("예쁘게 잘라주세요.")
+            .paymentAmount(20000)
+            .userId(3L) // 다른유저 id 넣기 
+            .hairshopId(hairshop.getId())
+            .designerId(designer.getId())
+            .menuId(menu.getId())
+            .build();
+
+        mockMvc.perform(post("/reservations")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(3)
+    @WithUserDetails(value = "example2@naver.com")
     void 예약_존재하면_400에러_발생() throws Exception {
         ReservationRequestDto requestDto = ReservationRequestDto.builder()
             .name("예약자")
@@ -245,8 +269,8 @@ class ReservationsController1Test {
     }
 
     @Test
-    @Order(3)
-    @WithMockUser(username = "example@gmail.com", roles = "USER")
+    @Order(4)
+    @WithUserDetails(value = "example2@naver.com")
     void 예약_가능시간을_조회할_수_있다() throws Exception {
         ReservationTimeRequestDto requestDto = ReservationTimeRequestDto.builder()
             .date(LocalDate.now())
@@ -284,7 +308,7 @@ class ReservationsController1Test {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     @WithMockUser(username = "example@gmail.com", roles = "USER")
     void 사용자는_예약을_취소할_수_있다() throws Exception {
         mockMvc.perform(
@@ -297,7 +321,7 @@ class ReservationsController1Test {
     }
 
     @Test
-    @Order(5)
+    @Order(6)
     @WithMockUser(username = "example@gmail.com", roles = "USER")
     void 예약_취소가눙_시간이_지나면_400에러를_반환한다() throws Exception {
         mockMvc.perform(

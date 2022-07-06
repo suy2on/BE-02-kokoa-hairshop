@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,6 +47,7 @@ public class ReservationService {
 
     @Transactional
     public ReservationResponseDto save(ReservationRequestDto requestDto) {
+        // 본인 확인 추가
         Optional<Designer> maybeDesigner = designerRepository.findById(requestDto.getDesignerId());
         if (maybeDesigner.isEmpty()) {
             throw new NotFoundException("해당 디자이너가 존재하지 않습니다.");
@@ -60,6 +62,7 @@ public class ReservationService {
         if (maybeUser.isEmpty()) {
             throw new NotFoundException("해당 사용자가 존재하지 않습니다.");
         }
+
 
         Optional<Hairshop> maybeHairshop = hairshopRepository.findById(requestDto.getHairshopId());
         if (maybeHairshop.isEmpty()) {
